@@ -1,4 +1,6 @@
 import cxapi = require('@aws-cdk/cx-api');
+import fs = require('fs');
+import path = require('path');
 
 /**
  * Returns a list of loaded modules and their versions.
@@ -51,15 +53,20 @@ export function collectRuntimeInformation(): cxapi.AppRuntime {
  *      ``undefined`` if the lookup was unsuccessful.
  */
 function findNpmPackage(fileName: string): { name: string, version: string, private?: boolean } | undefined {
-  const mod = require.cache[fileName];
+  const mod = require.cache[fileName] as NodeModule;
   const paths = mod.paths.map(stripNodeModules);
 
-  try {
-    const packagePath = require.resolve('package.json', { paths });
-    return require(packagePath);
-  } catch (e) {
-    return undefined;
+  for (const directory of paths) {
+    // One of the paths might be '', and this causes problem (and is anyway not what we're after)
+    if (!directory) { continue; }
+
+    const fullPath = path.join(directory, 'package.json');
+    if (fs.existsSync(fullPath)) {
+      return require(fullPath);
+    }
   }
+
+  return undefined;
 
   /**
    * @param s a path.

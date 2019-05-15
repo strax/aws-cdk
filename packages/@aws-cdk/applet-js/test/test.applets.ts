@@ -78,7 +78,7 @@ function synthesizeApplet(yamlFile: string, direct = false) {
   // tslint:disable-next-line:no-console
   console.log('Writing to ', os.tmpdir());
 
-  const command = direct ? yamlFile : 'cdk-applet-js';
+  const command = direct ? yamlFile : path.join(__dirname, '..', 'bin', 'cdk-applet-js');
   const args = direct ? [] : [yamlFile];
   const outdir = fs.mkdtempSync(path.join(os.tmpdir(), 'cdk-applet-tests'));
 

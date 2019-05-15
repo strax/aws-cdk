@@ -34,7 +34,7 @@ async function main() {
     throw new Error(`${appletFile}: must have an 'applets' key`);
   }
 
-  const searchDir = path.dirname(appletFile);
+  const searchDir = path.dirname(path.resolve(process.cwd(), appletFile));
   const tempDir = await fs.mkdtemp(path.join(os.tmpdir(), 'cdkapplet'));
   try {
     const app = new cdk.App();
@@ -81,7 +81,7 @@ async function constructStack(app: cdk.App, searchDir: string, tempDir: string, 
 
   // we need to resolve the module name relatively to where the applet file is
   // and not relative to this module or cwd.
-  const modulePath = require.resolve(applet.moduleName, { paths: [ searchDir ] });
+  const modulePath = path.resolve(searchDir, applet.moduleName);
 
   // load the module
   const pkg = require(modulePath);
